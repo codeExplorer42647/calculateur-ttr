@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculateur de Toxicité Relationnelle (TTR)</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 2em;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #b10000;
+    }
+
+    label {
+      display: block;
+      margin-top: 1.2em;
+      font-weight: bold;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin-top: 0.4em;
+    }
+
+    .slider-value {
+      float: right;
+      font-weight: normal;
+      color: #666;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 1em;
+      margin-top: 2em;
+      background: #b10000;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background: #870000;
+    }
+
+    #resultatTTR {
+      margin-top: 2em;
+      padding: 1em;
+      border-radius: 6px;
+      background-color: #eee;
+      font-size: 1.2em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculateur de Toxicité Relationnelle (TTR)</h1>
+  <form id="ttr-form">
+    <label>1. Fréquence des conflits <span class="slider-value" id="val1">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x1" value="0" oninput="updateValue(1)">
+
+    <label>2. Intensité des tensions émotionnelles <span class="slider-value" id="val2">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x2" value="0" oninput="updateValue(2)">
+
+    <label>3. Déséquilibre d’investissement affectif <span class="slider-value" id="val3">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x3" value="0" oninput="updateValue(3)">
+
+    <label>4. Présence de comportements manipulateurs <span class="slider-value" id="val4">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x4" value="0" oninput="updateValue(4)">
+
+    <label>5. Durée de la relation (0 = récente, 10 = très longue) <span class="slider-value" id="val5">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x5" value="0" oninput="updateValue(5)">
+
+    <label>6. Dépendance émotionnelle ou matérielle <span class="slider-value" id="val6">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x6" value="0" oninput="updateValue(6)">
+
+    <label>7. Historique de ruptures/réconciliations <span class="slider-value" id="val7">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x7" value="0" oninput="updateValue(7)">
+
+    <label>8. Isolement social causé par la relation <span class="slider-value" id="val8">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x8" value="0" oninput="updateValue(8)">
+
+    <label>9. Sentiment de culpabilité ou d’obligation constant <span class="slider-value" id="val9">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x9" value="0" oninput="updateValue(9)">
+
+    <label>10. Réaction des tiers (amis, proches, collègues) <span class="slider-value" id="val10">0</span></label>
+    <input type="range" min="0" max="10" step="1" id="x10" value="0" oninput="updateValue(10)">
+
+    <button type="button" onclick="calculateTTR()">Évaluer</button>
+  </form>
+
+  <div id="resultatTTR">Aucun calcul effectué pour le moment.</div>
+
+  <script>
+    function updateValue(i) {
+      const val = document.getElementById('x' + i).value;
+      document.getElementById('val' + i).innerText = val;
+    }
+
+    function calculateTTR() {
+      const x = [];
+      for (let i = 1; i <= 10; i++) {
+        x[i] = parseFloat(document.getElementById("x" + i).value);
+      }
+
+      const xTox = (x[1] + x[2] + x[3] + x[4] + x[6] + x[7] + x[8] + x[9] + x[10]) / 9;
+
+      const ttr = 100/12.254062044698 * (
+        0.12 * x[1] +
+        0.12 * Math.pow(x[2], 1.2) +
+        0.10 * x[3] +
+        0.15 * Math.min(1.5 * x[4], 10) +
+        0.05 * ((x[5] / 10) * xTox) +
+        0.13 * Math.pow(x[6], 1.3) +
+        0.08 * Math.sqrt(x[7]) * 3.16 +
+        0.10 * x[8] +
+        0.10 * Math.pow(x[9], 1.1) +
+        0.05 * x[10]
+      );
+
+      let message = "";
+      if (ttr < 20) message = "Relation saine et épanouissante.";
+      else if (ttr < 40) message = "Légères tensions, mais globalement stable.";
+      else if (ttr < 60) message = "Attention : cette relation présente plusieurs signaux d’alerte.";
+      else if (ttr < 80) message = "Relation toxique : prenez du recul et protégez-vous.";
+      else message = "Toxicité critique : éloignement fortement recommandé.";
+
+      document.getElementById("resultatTTR").innerHTML =
+        "<strong>TTR = " + ttr.toFixed(1) + "/100</strong><br><br>" + message;
+    }
+  </script>
+</body>
+</html>
